@@ -11,6 +11,7 @@ import numpy as np
 import argparse
 import imutils
 import cv2
+import time
 
 def midpoint(ptA, ptB):
 	return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
@@ -47,7 +48,7 @@ pixelsPerMetric = None
 # loop over the contours individually
 for c in cnts:
 	# if the contour is not sufficiently large, ignore it
-	if cv2.contourArea(c) < 100:
+	if cv2.contourArea(c) < 300:
 		continue
 
 	# compute the rotated bounding box of the contour
@@ -116,3 +117,4 @@ for c in cnts:
 	# show the output image
 	cv2.imshow("Image", orig)
 	cv2.waitKey(0)
+	
