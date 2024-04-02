@@ -25,6 +25,9 @@ def angle(pt1, pt2):
 
     return angle_deg
 
+height_to_centre = None
+box_height = None
+centre_point = [12, 58]
 
 pipe = rs.pipeline()
 cfg = rs.config()
@@ -35,6 +38,8 @@ cfg.enable_stream(rs.stream.depth, 640,480, rs.format.z16, 30)
 
 pipe.start(cfg)
 
+
+
 while True:
     frame = pipe.wait_for_frames()
     depth_frame = frame.get_depth_frame()
@@ -42,23 +47,37 @@ while True:
 
     depth_image = np.asanyarray(depth_frame.get_data())
     color_image = np.asanyarray(color_frame.get_data())
+
+    belt = color_image[15:155, 5:630]
+    belt_depth = depth_image[15:155, 5:630]
+    # 60 - 400 y
+    # 10 - 600 x
+    cv2.imshow("belt", belt)
     
     depth_cm = cv2.applyColorMap(cv2.convertScaleAbs(depth_image,
                                      alpha = 0.5), cv2.COLORMAP_JET)
 
-    img_gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
+    img_gray = cv2.cvtColor(belt, cv2.COLOR_BGR2GRAY)
     img_gray = cv2.GaussianBlur(img_gray, (7, 7), 0)
     
-    _, threshold = cv2.threshold(img_gray, 200, 300, cv2.THRESH_BINARY)
+    _, threshold = cv2.threshold(img_gray, 70, 300, cv2.THRESH_BINARY)
     
+    cv2.imshow("shadow", threshold)
+
     cnts = cv2.findContours(threshold, cv2.RETR_EXTERNAL,
     cv2.CHAIN_APPROX_SIMPLE)
 
     cnts = imutils.grab_contours(cnts)
 
-    (cnts, _) = contours.sort_contours(cnts)
+    # (cnts, _) = contours.sort_contours(cnts)
 
     print(len(cnts))
+
+    if height_to_centre == None:
+        height_to_centre = belt_depth[12, 58]
+
+    height_to_centre = belt_depth[71, 310]
+
 
     for c in cnts:
         # if the contour is not sufficiently large, ignore it
@@ -66,7 +85,7 @@ while True:
             continue
         
 
-        orig = color_image.copy()
+        orig = belt.copy()
         box = cv2.minAreaRect(c)
         box = cv2.cv.BoxPoints(box) if imutils.is_cv2() else cv2.boxPoints(box)
         box = np.array(box, dtype="int")
@@ -96,6 +115,8 @@ while True:
 
         len1 = distance(tl, bl)
         len2 = distance(bl, br)
+        
+        
 
         if len1 > len2:
             theta = angle(tl, bl)
@@ -105,7 +126,19 @@ while True:
             theta = angle(bl, br)
             print("second one")
 
+        
+
         print("theta", theta)
+
+        # if box_height == None and centx > centre_point[0]:
+        #     box_height = height_to_centre - depth_image[int(centx), int(centy)]
+
+        # if centx > centre_point[0]:
+        #     box_height = height_to_centre - belt_depth[int(centx), int(centy)]
+
+        print("heigh to centre", height_to_centre)
+        print("Box height", box_height)
+        
 
         # theta1 = angle(bl, br)
         # theta2 = angle(tl, bl)
