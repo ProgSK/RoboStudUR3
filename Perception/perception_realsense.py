@@ -27,7 +27,9 @@ def angle(pt1, pt2):
 
 height_to_centre = None
 box_height = None
-centre_point = [12, 58]
+centre_point = [12, 58] #centre of belt 
+#Add cm per pixel metric for xy Dimension\
+
 
 pipe = rs.pipeline()
 cfg = rs.config()
@@ -129,6 +131,11 @@ while True:
         
 
         print("theta", theta)
+
+        #use the box centre as a radius from the frame centre like below
+
+        # if box_height == None and distance(centx, centre_point[0] < 200:
+        #     box_height = height_to_centre - depth_image[int(centx), int(centy)]
 
         # if box_height == None and centx > centre_point[0]:
         #     box_height = height_to_centre - depth_image[int(centx), int(centy)]
