@@ -27,7 +27,8 @@ def angle(pt1, pt2):
 
 height_to_centre = None
 box_height = None
-centre_point = [12, 58] #centre of belt 
+centre_point = [300, 65] #centre of belt 
+col_depth_offset = [0, 50]
 #Add cm per pixel metric for xy Dimension\
 
 
@@ -51,13 +52,21 @@ while True:
     color_image = np.asanyarray(color_frame.get_data())
 
     belt = color_image[15:155, 5:630]
-    belt_depth = depth_image[15:155, 5:630]
+    belt_depth = depth_image #[90:230, 5:630]
     # 60 - 400 y
     # 10 - 600 x
+
+    # x = 364, y = 165  depth 
+    # 430, 110 = colour image
+    # 
     cv2.imshow("belt", belt)
+    cv2.imshow("colour", color_image)
     
-    depth_cm = cv2.applyColorMap(cv2.convertScaleAbs(depth_image,
+    
+    depth_cm = cv2.applyColorMap(cv2.convertScaleAbs(belt_depth,
                                      alpha = 0.5), cv2.COLORMAP_JET)
+    
+    cv2.imshow("belt depth", depth_cm )
 
     img_gray = cv2.cvtColor(belt, cv2.COLOR_BGR2GRAY)
     img_gray = cv2.GaussianBlur(img_gray, (7, 7), 0)
@@ -76,9 +85,9 @@ while True:
     print(len(cnts))
 
     if height_to_centre == None:
-        height_to_centre = belt_depth[12, 58]
+        height_to_centre = belt_depth[(centre_point[1]+col_depth_offset[1]), (centre_point[0]+col_depth_offset[0])]
 
-    height_to_centre = belt_depth[71, 310]
+    # height_to_centre = belt_depth[71, 310]
 
 
     for c in cnts:
@@ -134,8 +143,14 @@ while True:
 
         #use the box centre as a radius from the frame centre like below
 
-        # if box_height == None and distance(centx, centre_point[0] < 200:
-        #     box_height = height_to_centre - depth_image[int(centx), int(centy)]
+        if box_height == None and np.abs(centx - centre_point[0]) < 10:
+            box_height = height_to_centre - belt_depth[int(centy) + col_depth_offset[1], int(centx) + col_depth_offset[0]]
+            print("LOOP SUCCESS")
+
+        print("depth", belt_depth[150, 360])
+
+        print("CENT X",centx )
+        print("Centrepoint",centre_point[1])
 
         # if box_height == None and centx > centre_point[0]:
         #     box_height = height_to_centre - depth_image[int(centx), int(centy)]
@@ -143,7 +158,7 @@ while True:
         # if centx > centre_point[0]:
         #     box_height = height_to_centre - belt_depth[int(centx), int(centy)]
 
-        print("heigh to centre", height_to_centre)
+        print("height to centre", height_to_centre)
         print("Box height", box_height)
         
 
