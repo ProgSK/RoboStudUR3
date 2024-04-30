@@ -6,6 +6,8 @@ import imutils
 from imutils import perspective
 from imutils import contours
 import math
+import rospy
+# from std_msgs.msg import 
 
 #Function find midpoint of two coordinates
 def midpoint(ptA, ptB):
@@ -33,8 +35,8 @@ def angle(pt1, pt2):
 height_to_centre = None #Variable storing height from camera to converyor 
 box_height = None #Variable storing object height
 centre_point = [300, 65] #Variable for Belt centre of RGB image 
-centre_point_depth = [300, 150] #Variable for Belt centre of Depth image 
-cm_per_pixel = None #Variable storing pixel size ratio from test measurement 
+centre_point_depth = [300, 40] #Variable for Belt centre of Depth image 
+mm_per_pixel = 10/17 #Variable storing pixel size ratio from test measurement 
 
 
 col_depth_offset = [0, 50]
@@ -61,8 +63,8 @@ while True:
     color_image = np.asanyarray(color_frame.get_data())
 
     #Crop image to just belt
-    belt = color_image[15:155, 5:630]
-    belt_depth = depth_image [90:230, 5:630]
+    belt = color_image[15:160, 5:630]
+    belt_depth = depth_image [110:200, 70:630]
     
     # 60 - 400 y
     # 10 - 600 x
@@ -79,12 +81,18 @@ while True:
     #Changing Depth iamge to greyscale 
     img_gray_depth = cv2.cvtColor(belt_depth_colour, cv2.COLOR_BGR2GRAY)
     img_gray_depth = cv2.GaussianBlur(img_gray_depth, (7, 7), 0)
-    _, threshold_depth = cv2.threshold(img_gray_depth, 70, 300, cv2.THRESH_BINARY)
+    _, threshold_depth = cv2.threshold(img_gray_depth, 180, 220, cv2.THRESH_BINARY)
 
     #Finding contours in depth image
     cnts_depth = cv2.findContours(threshold_depth, cv2.RETR_EXTERNAL,
     cv2.CHAIN_APPROX_SIMPLE)
     cnts_depth = imutils.grab_contours(cnts_depth)
+
+
+    depth_image_colour = cv2.applyColorMap(cv2.convertScaleAbs(depth_image,
+                                     alpha = 0.5), cv2.COLORMAP_JET)
+    
+
 
     if height_to_centre == None:
         height_to_centre = belt_depth[(centre_point_depth[1]), (centre_point_depth[0])]
@@ -130,7 +138,7 @@ while True:
         cv2.line(orig_depth, (int(tlblX_dep), int(tlblY_dep)), (int(trbrX_dep), int(trbrY_dep)),
             (255, 0, 255), 2)
         
-        cv2.imshow("Image", orig_depth)
+        cv2.imshow("Image Depth", orig_depth)
 
 
 
@@ -144,7 +152,7 @@ while True:
     #Changing colour image to grey scale
     img_gray = cv2.cvtColor(belt, cv2.COLOR_BGR2GRAY)
     img_gray = cv2.GaussianBlur(img_gray, (7, 7), 0)
-    _, threshold = cv2.threshold(img_gray, 70, 300, cv2.THRESH_BINARY)
+    _, threshold = cv2.threshold(img_gray, 90, 300, cv2.THRESH_BINARY)
 
     #Finding Contours in colour image
     cnts = cv2.findContours(threshold, cv2.RETR_EXTERNAL,
@@ -160,11 +168,11 @@ while True:
     # height_to_centre = belt_depth[71, 310]
 
     #Display Feeds
-    cv2.imshow("belt", belt)
+    # cv2.imshow("belt", belt)
     # cv2.imshow("colour", color_image)
-    cv2.imshow("belt depth", belt_depth_colour )
-    cv2.imshow("shadow RGB", threshold)
-    cv2.imshow("shadow depth", threshold_depth)
+    # cv2.imshow("belt depth", belt_depth_colour )
+    # cv2.imshow("shadow RGB", threshold)
+    # cv2.imshow("shadow depth", threshold_depth)
     
 
     for c in cnts:
@@ -199,24 +207,31 @@ while True:
 
         (centx, centy) = midpoint(tl, br)
         
-        print("Centres: x", centx, "y", centy)
+        print("Centres: x", int(centx),type(centx), "y", int(centy), type(centy))
 
         len1 = distance(tl, bl)
         len2 = distance(bl, br)
         
+
         
 
         if len1 > len2:
             theta = angle(tl, bl)
-            print("first one")
+            Length = len1 * mm_per_pixel
+            Width = len2 * mm_per_pixel
+
 
         else:
             theta = angle(bl, br)
-            print("second one")
+            Width = len1 * mm_per_pixel
+            Length = len2 * mm_per_pixel
+
 
         
 
-        print("theta", theta)
+        print("theta", theta, type(theta))
+        print("Length", Length, type(Length))
+        print("Width", Width, type(Width))
 
         #use the box centre as a radius from the frame centre like below
 
@@ -224,10 +239,10 @@ while True:
         #     box_height = height_to_centre - belt_depth[int(centy) + col_depth_offset[1], int(centx) + col_depth_offset[0]]
         #     print("LOOP SUCCESS")
 
-        print("depth", belt_depth[150, 360])
+        # print("depth", belt_depth[150, 360])
 
-        print("CENT X",centx )
-        print("Centrepoint",centre_point[1])
+        # print("CENT X",centx )
+        # print("Centrepoint",centre_point[1])
 
         # if box_height == None and centx > centre_point[0]:
         #     box_height = height_to_centre - depth_image[int(centx), int(centy)]
@@ -236,7 +251,7 @@ while True:
         #     box_height = height_to_centre - belt_depth[int(centx), int(centy)]
 
         print("height to centre", height_to_centre)
-        print("Box height", box_height)
+        print("Box height", box_height, type(box_height))
         
 
         # theta1 = angle(bl, br)
