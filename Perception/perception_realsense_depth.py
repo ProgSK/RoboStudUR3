@@ -7,7 +7,7 @@ from imutils import perspective
 from imutils import contours
 import math
 import rospy
-# from std_msgs.msg import 
+from std_msgs.msg import Float32
 
 #Function find midpoint of two coordinates
 def midpoint(ptA, ptB):
