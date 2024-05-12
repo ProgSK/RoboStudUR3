@@ -81,8 +81,9 @@ while True:
     #Changing Depth iamge to greyscale 
     img_gray_depth = cv2.cvtColor(belt_depth_colour, cv2.COLOR_BGR2GRAY)
     img_gray_depth = cv2.GaussianBlur(img_gray_depth, (7, 7), 0)
-    _, threshold_depth = cv2.threshold(img_gray_depth, 180, 220, cv2.THRESH_BINARY)
+    _, threshold_depth = cv2.threshold(img_gray_depth, 185, 200, cv2.THRESH_BINARY)
 
+    cv2.imshow("Image Depth grey", img_gray_depth)
     #Finding contours in depth image
     cnts_depth = cv2.findContours(threshold_depth, cv2.RETR_EXTERNAL,
     cv2.CHAIN_APPROX_SIMPLE)
@@ -125,6 +126,7 @@ while True:
 
         if box_height == None and np.abs(centx_dep - centre_point_depth[0]) < 10:
             box_height = height_to_centre - belt_depth[int(centy_dep), int(centx_dep)]
+            
 
 
         #Display circles/lines on object
@@ -152,7 +154,7 @@ while True:
     #Changing colour image to grey scale
     img_gray = cv2.cvtColor(belt, cv2.COLOR_BGR2GRAY)
     img_gray = cv2.GaussianBlur(img_gray, (7, 7), 0)
-    _, threshold = cv2.threshold(img_gray, 90, 300, cv2.THRESH_BINARY)
+    _, threshold = cv2.threshold(img_gray, 120, 300, cv2.THRESH_BINARY)
 
     #Finding Contours in colour image
     cnts = cv2.findContours(threshold, cv2.RETR_EXTERNAL,
@@ -170,9 +172,9 @@ while True:
     #Display Feeds
     # cv2.imshow("belt", belt)
     # cv2.imshow("colour", color_image)
-    # cv2.imshow("belt depth", belt_depth_colour )
+    cv2.imshow("belt depth", belt_depth )
     # cv2.imshow("shadow RGB", threshold)
-    # cv2.imshow("shadow depth", threshold_depth)
+    cv2.imshow("shadow depth", threshold_depth)
     
 
     for c in cnts:

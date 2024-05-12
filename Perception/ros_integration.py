@@ -9,7 +9,9 @@ import math
 import rospy
 from std_msgs.msg import Float32MultiArray
 
-#Function find midpoint of two coordinates
+
+#
+# Function find midpoint of two coordinates
 def midpoint(ptA, ptB):
     return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
@@ -34,22 +36,23 @@ def angle(pt1, pt2):
 
 
 ##Variable initialisation 
-height_to_centre = None #Variable storing height from camera to converyor 
-box_height = None #Variable storing object height
-centre_point = [300, 65] #Variable for Belt centre of RGB image 
-centre_point_depth = [300, 40] #Variable for Belt centre of Depth image 
-mm_per_pixel = 10/17 #Variable storing pixel size ratio from test measurement 
+# height_to_centre = None #Variable storing height from camera to converyor 
+# box_height = None #Variable storing object height
+# centre_point = [300, 65] #Variable for Belt centre of RGB image 
+# centre_point_depth = [300, 40] #Variable for Belt centre of Depth image 
+# mm_per_pixel = 10/17 #Variable storing pixel size ratio from test measurement 
 
 
-col_depth_offset = [0, 50]
-#Add cm per pixel metric for xy Dimension\
+# col_depth_offset = [0, 50]
+# #Add cm per pixel metric for xy Dimension\
 
-#Enable camera streaming data
-pipe = rs.pipeline()
-cfg = rs.config()
-cfg.enable_stream(rs.stream.color, 640,480, rs.format.bgr8, 30)
-cfg.enable_stream(rs.stream.depth, 640,480, rs.format.z16, 30)
-pipe.start(cfg)
+# #Enable camera streaming data
+# pipe = rs.pipeline()
+# cfg = rs.config()
+# cfg.enable_stream(rs.stream.color, 640,480, rs.format.bgr8, 30)
+# cfg.enable_stream(rs.stream.depth, 640,480, rs.format.z16, 30)
+# pipe.start(cfg)
+
 
 def publisher():
 
@@ -57,8 +60,26 @@ def publisher():
 
     pub = rospy.Publisher('pereption_topic', Float32MultiArray) 
 
-    rate = rospy.Rate(30)
-#While loop through each camera frame 
+    rate = rospy.Rate(10)
+
+    height_to_centre = None #Variable storing height from camera to converyor 
+    box_height = None #Variable storing object height
+
+    centre_point = [300, 65] #Variable for Belt centre of RGB image 
+    centre_point_depth = [280, 40] #Variable for Belt centre of Depth image 
+    mm_per_pixel = 10/17 #Variable storing pixel size ratio from test measurement 
+
+
+    col_depth_offset = [0, 50]
+    #Add cm per pixel metric for xy Dimension\
+
+    #Enable camera streaming data
+    pipe = rs.pipeline()
+    cfg = rs.config()
+    cfg.enable_stream(rs.stream.color, 640,480, rs.format.bgr8, 30)
+    cfg.enable_stream(rs.stream.depth, 640,480, rs.format.z16, 30)
+    pipe.start(cfg)
+    #While loop through each camera frame 
     while not rospy.is_shutdown():
 
         #get colour and depth frame
@@ -89,7 +110,7 @@ def publisher():
         #Changing Depth iamge to greyscale 
         img_gray_depth = cv2.cvtColor(belt_depth_colour, cv2.COLOR_BGR2GRAY)
         img_gray_depth = cv2.GaussianBlur(img_gray_depth, (7, 7), 0)
-        _, threshold_depth = cv2.threshold(img_gray_depth, 180, 220, cv2.THRESH_BINARY)
+        _, threshold_depth = cv2.threshold(img_gray_depth, 185, 200, cv2.THRESH_BINARY)
 
         #Finding contours in depth image
         cnts_depth = cv2.findContours(threshold_depth, cv2.RETR_EXTERNAL,
@@ -100,7 +121,7 @@ def publisher():
         depth_image_colour = cv2.applyColorMap(cv2.convertScaleAbs(depth_image,
                                         alpha = 0.5), cv2.COLORMAP_JET)
         
-
+        cv2.imshow("shadow depth", threshold_depth)
 
         if height_to_centre == None:
             height_to_centre = belt_depth[(centre_point_depth[1]), (centre_point_depth[0])]
@@ -133,6 +154,7 @@ def publisher():
 
             if box_height == None and np.abs(centx_dep - centre_point_depth[0]) < 10:
                 box_height = height_to_centre - belt_depth[int(centy_dep), int(centx_dep)]
+                box_height = box_height.astype(np.float32)
 
 
             #Display circles/lines on object
@@ -160,7 +182,7 @@ def publisher():
         #Changing colour image to grey scale
         img_gray = cv2.cvtColor(belt, cv2.COLOR_BGR2GRAY)
         img_gray = cv2.GaussianBlur(img_gray, (7, 7), 0)
-        _, threshold = cv2.threshold(img_gray, 90, 300, cv2.THRESH_BINARY)
+        _, threshold = cv2.threshold(img_gray, 100, 300, cv2.THRESH_BINARY)
 
         #Finding Contours in colour image
         cnts = cv2.findContours(threshold, cv2.RETR_EXTERNAL,
@@ -245,19 +267,31 @@ def publisher():
             ############### Data Conversion ###################
             centx = centx.astype(np.float32)
             centy = centy.astype(np.float32)
-            theta = theta.astype(np.float32)
-            Length = Length.astype(np.float32)
-            Width = Width.astype(np.float32)
-            box_height = box_height.astype(np.float32)
+            # theta = theta.astype(np.float32)
+            # Length = Length.astype(np.float32)
+            # Width = Width.astype(np.float32)
+            # if box_height != None:
+            #     box_height = box_height.astype(np.float32)
 
-            percep_data = [centx, centy, theta, Length, Width, box_height]
+            percep_data = Float32MultiArray()
+            percep_data.layout.dim.append(6)  # Set the first dimension
+            percep_data.layout.dim.append(1)
+
+            if box_height == None:
+                percep_data = [centx, centy, theta, Length, Width, 0.0]
+            
+            else:
+                percep_data = [centx, centy, theta, Length, Width, box_height]
+
+            
 
             msg = Float32MultiArray(data=percep_data)
             pub.publish(msg)
 
             rospy.loginfo("Published Perception Data Array: %s", percep_data)
 
-
+            if centx > 570:
+                box_height = None
 
             #use the box centre as a radius from the frame centre like below
 
@@ -299,6 +333,7 @@ def publisher():
             cv2.imshow("Image", orig)
 
             
+
         rate.sleep()
 
 
@@ -311,3 +346,9 @@ def publisher():
         #     break
 
     pipe.stop()
+
+if __name__ == '__main__':
+    try:
+        publisher()
+    except rospy.ROSInterruptException:
+        pass
