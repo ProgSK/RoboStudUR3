@@ -35,8 +35,8 @@ def angle(pt1, pt2):
 height_to_centre = None #Variable storing height from camera to converyor 
 box_height = None #Variable storing object height
 centre_point = [300, 65] #Variable for Belt centre of RGB image 
-centre_point_depth = [300, 40] #Variable for Belt centre of Depth image 
-mm_per_pixel = 10/17 #Variable storing pixel size ratio from test measurement 
+centre_point_depth = [210, 40] #Variable for Belt centre of Depth image 
+mm_per_pixel = 198/258 #Variable storing pixel size ratio from test measurement 
 
 
 col_depth_offset = [0, 50]
@@ -63,8 +63,8 @@ while True:
     color_image = np.asanyarray(color_frame.get_data())
 
     #Crop image to just belt
-    belt = color_image[15:160, 5:630]
-    belt_depth = depth_image [110:200, 70:630]
+    belt = color_image[90:245, 5:625]
+    belt_depth = depth_image [150:250, 70:480]
     
     # 60 - 400 y
     # 10 - 600 x
@@ -72,7 +72,8 @@ while True:
     # x = 364, y = 165  depth 
     # 430, 110 = colour image
     # 
-
+    depth_colour = cv2.applyColorMap(cv2.convertScaleAbs(depth_image,
+                                     alpha = 0.5), cv2.COLORMAP_JET)    
     
     #Concert belt depth to colour image
     belt_depth_colour = cv2.applyColorMap(cv2.convertScaleAbs(belt_depth,
@@ -81,9 +82,9 @@ while True:
     #Changing Depth iamge to greyscale 
     img_gray_depth = cv2.cvtColor(belt_depth_colour, cv2.COLOR_BGR2GRAY)
     img_gray_depth = cv2.GaussianBlur(img_gray_depth, (7, 7), 0)
-    _, threshold_depth = cv2.threshold(img_gray_depth, 185, 200, cv2.THRESH_BINARY)
+    _, threshold_depth = cv2.threshold(img_gray_depth, 80, 110, cv2.THRESH_BINARY)
 
-    cv2.imshow("Image Depth grey", img_gray_depth)
+    
     #Finding contours in depth image
     cnts_depth = cv2.findContours(threshold_depth, cv2.RETR_EXTERNAL,
     cv2.CHAIN_APPROX_SIMPLE)
@@ -93,7 +94,15 @@ while True:
     depth_image_colour = cv2.applyColorMap(cv2.convertScaleAbs(depth_image,
                                      alpha = 0.5), cv2.COLORMAP_JET)
     
-
+    #Display Feeds
+    cv2.imshow("belt CROPPED", belt)
+    cv2.imshow("colour", color_image)
+    cv2.imshow("depth image", depth_colour)
+    cv2.imshow("belt depth CROPPED", belt_depth_colour )
+    # # cv2.imshow("shadow RGB", threshold)
+    # cv2.imshow("shadow depth", threshold_depth)
+    cv2.imshow("Image Depth grey", img_gray_depth)
+    
 
     if height_to_centre == None:
         height_to_centre = belt_depth[(centre_point_depth[1]), (centre_point_depth[0])]
@@ -161,6 +170,8 @@ while True:
     cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
 
+    cv2.imshow("img_grey", img_gray)
+
     # (cnts, _) = contours.sort_contours(cnts)
 
     print(len(cnts))
@@ -169,12 +180,7 @@ while True:
 
     # height_to_centre = belt_depth[71, 310]
 
-    #Display Feeds
-    # cv2.imshow("belt", belt)
-    # cv2.imshow("colour", color_image)
-    cv2.imshow("belt depth", belt_depth )
-    # cv2.imshow("shadow RGB", threshold)
-    cv2.imshow("shadow depth", threshold_depth)
+
     
 
     for c in cnts:

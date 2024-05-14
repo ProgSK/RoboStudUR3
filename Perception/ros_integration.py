@@ -58,7 +58,7 @@ def publisher():
 
     rospy.init_node('perception_data_publisher', anonymous=True)
 
-    pub = rospy.Publisher('pereption_topic', Float32MultiArray) 
+    pub = rospy.Publisher('perception_topic', Float32MultiArray) 
 
     rate = rospy.Rate(10)
 
@@ -66,8 +66,8 @@ def publisher():
     box_height = None #Variable storing object height
 
     centre_point = [300, 65] #Variable for Belt centre of RGB image 
-    centre_point_depth = [280, 40] #Variable for Belt centre of Depth image 
-    mm_per_pixel = 10/17 #Variable storing pixel size ratio from test measurement 
+    centre_point_depth = [200, 50] #Variable for Belt centre of Depth image 
+    mm_per_pixel = 198/367 #Variable storing pixel size ratio from test measurement 
 
 
     col_depth_offset = [0, 50]
@@ -92,8 +92,8 @@ def publisher():
         color_image = np.asanyarray(color_frame.get_data())
 
         #Crop image to just belt
-        belt = color_image[15:160, 5:630]
-        belt_depth = depth_image [110:200, 70:630]
+        belt = color_image[90:245, 5:625]
+        belt_depth = depth_image [150:250, 70:480]
         
         # 60 - 400 y
         # 10 - 600 x
@@ -106,11 +106,14 @@ def publisher():
         #Concert belt depth to colour image
         belt_depth_colour = cv2.applyColorMap(cv2.convertScaleAbs(belt_depth,
                                         alpha = 0.5), cv2.COLORMAP_JET)
+        
+        depth_colour = cv2.applyColorMap(cv2.convertScaleAbs(depth_image,
+                                     alpha = 0.5), cv2.COLORMAP_JET)  
 
         #Changing Depth iamge to greyscale 
         img_gray_depth = cv2.cvtColor(belt_depth_colour, cv2.COLOR_BGR2GRAY)
         img_gray_depth = cv2.GaussianBlur(img_gray_depth, (7, 7), 0)
-        _, threshold_depth = cv2.threshold(img_gray_depth, 185, 200, cv2.THRESH_BINARY)
+        _, threshold_depth = cv2.threshold(img_gray_depth, 160, 190, cv2.THRESH_BINARY)
 
         #Finding contours in depth image
         cnts_depth = cv2.findContours(threshold_depth, cv2.RETR_EXTERNAL,
@@ -121,7 +124,7 @@ def publisher():
         depth_image_colour = cv2.applyColorMap(cv2.convertScaleAbs(depth_image,
                                         alpha = 0.5), cv2.COLORMAP_JET)
         
-        cv2.imshow("shadow depth", threshold_depth)
+        
 
         if height_to_centre == None:
             height_to_centre = belt_depth[(centre_point_depth[1]), (centre_point_depth[0])]
@@ -198,10 +201,13 @@ def publisher():
         # height_to_centre = belt_depth[71, 310]
 
         #Display Feeds
-        # cv2.imshow("belt", belt)
+        cv2.imshow("belt CROPPED", belt)
         # cv2.imshow("colour", color_image)
-        # cv2.imshow("belt depth", belt_depth_colour )
-        # cv2.imshow("shadow RGB", threshold)
+        # cv2.imshow("depth image", depth_colour)
+        cv2.imshow("belt depth CROPPED", belt_depth_colour )
+        # # cv2.imshow("shadow RGB", threshold)
+        # cv2.imshow("shadow depth", threshold_depth)
+        cv2.imshow("Image Depth grey", img_gray_depth)
         # cv2.imshow("shadow depth", threshold_depth)
         
 
@@ -236,6 +242,8 @@ def publisher():
             print("bl",bl)
 
             (centx, centy) = midpoint(tl, br)
+            centx_mm = centx * mm_per_pixel
+            centy_mm = centy * mm_per_pixel
             
             
 
@@ -258,15 +266,15 @@ def publisher():
 
 
             
-            print("Centres: x", int(centx),type(centx), "y", int(centy), type(centy))
+            print("Centres: x", int(centx_mm),type(centx_mm), "y", int(centy_mm), type(centy_mm))
             print("theta", theta, type(theta))
             print("Length", Length, type(Length))
             print("Width", Width, type(Width))
             print("Box height", box_height, type(box_height))
 
             ############### Data Conversion ###################
-            centx = centx.astype(np.float32)
-            centy = centy.astype(np.float32)
+            centx_mm = centx_mm.astype(np.float32)
+            centy_mm = centy_mm.astype(np.float32)
             # theta = theta.astype(np.float32)
             # Length = Length.astype(np.float32)
             # Width = Width.astype(np.float32)
