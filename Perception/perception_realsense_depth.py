@@ -36,7 +36,7 @@ height_to_centre = None #Variable storing height from camera to converyor
 box_height = None #Variable storing object height
 centre_point = [300, 65] #Variable for Belt centre of RGB image 
 centre_point_depth = [210, 40] #Variable for Belt centre of Depth image 
-mm_per_pixel = 198/258 #Variable storing pixel size ratio from test measurement 
+mm_per_pixel = 300/355 #Variable storing pixel size ratio from test measurement 
 
 
 col_depth_offset = [0, 50]
@@ -63,8 +63,8 @@ while True:
     color_image = np.asanyarray(color_frame.get_data())
 
     #Crop image to just belt
-    belt = color_image[90:245, 5:625]
-    belt_depth = depth_image [150:250, 70:480]
+    belt = color_image[190:300, 5:600]
+    belt_depth = depth_image [220:290, 90:480]
     
     # 60 - 400 y
     # 10 - 600 x
@@ -82,7 +82,7 @@ while True:
     #Changing Depth iamge to greyscale 
     img_gray_depth = cv2.cvtColor(belt_depth_colour, cv2.COLOR_BGR2GRAY)
     img_gray_depth = cv2.GaussianBlur(img_gray_depth, (7, 7), 0)
-    _, threshold_depth = cv2.threshold(img_gray_depth, 80, 110, cv2.THRESH_BINARY)
+    _, threshold_depth = cv2.threshold(img_gray_depth, 40, 45, cv2.THRESH_BINARY)
 
     
     #Finding contours in depth image
@@ -163,7 +163,7 @@ while True:
     #Changing colour image to grey scale
     img_gray = cv2.cvtColor(belt, cv2.COLOR_BGR2GRAY)
     img_gray = cv2.GaussianBlur(img_gray, (7, 7), 0)
-    _, threshold = cv2.threshold(img_gray, 120, 300, cv2.THRESH_BINARY)
+    _, threshold = cv2.threshold(img_gray, 55, 70, cv2.THRESH_BINARY)
 
     #Finding Contours in colour image
     cnts = cv2.findContours(threshold, cv2.RETR_EXTERNAL,
@@ -260,6 +260,9 @@ while True:
 
         print("height to centre", height_to_centre)
         print("Box height", box_height, type(box_height))
+
+        if centx > 400:
+                box_height = None
         
 
         # theta1 = angle(bl, br)
