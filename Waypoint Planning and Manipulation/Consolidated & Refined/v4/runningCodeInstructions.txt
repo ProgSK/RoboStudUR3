@@ -1,0 +1,32 @@
+To Compile Code:
+1. cd ~/RoboStud2/RoboStudUR3/'Waypoint Planning and Manipulation'/'Consolidated & Refined'/v4/ros_ws
+2. catkin_make
+3. source devel/setup.bash
+
+To Run Code & Debugging:
+NOTE: Need 6 seperate terminals
+
+T1
+1. cd ~/RoboStud2/RoboStudUR3/'Waypoint Planning and Manipulation'/'Consolidated & Refined'/v4/ros_ws
+2. roscore
+
+T2
+1. cd ~/RoboStud2/RoboStudUR3/'Waypoint Planning and Manipulation'/'Consolidated & Refined'/v4
+2. ./waypoint_reciever.py
+
+T3
+1. cd ~/RoboStud2/RoboStudUR3/'Waypoint Planning and Manipulation'/'Consolidated & Refined'/v4/ros_ws
+2. rviz -d *.rviz
+
+T4
+1. cd ~/RoboStud2/RoboStudUR3/'Waypoint Planning and Manipulation'/'Consolidated & Refined'/v4/ros_ws
+2. rostopic echo /waypoint_topic
+
+T5
+1. cd ~/RoboStud2/RoboStudUR3/'Waypoint Planning and Manipulation'/'Consolidated & Refined'/v4/ros_ws
+2. rosrun genwbtest genWBtest
+
+T6.
+1. cd ~/RoboStud2/RoboStudUR3/'Waypoint Planning and Manipulation'/'Consolidated & Refined'/v4
+2. rosbag play 2024-05-07-14-08-10.bag
+

@@ -1,0 +1,8 @@
+prefix=/home/progsk/RoboStud2/RoboStudUR3/Waypoint Planning and Manipulation/Consolidated & Refined/v4/ros_ws/install
+
+Name: genwbtest
+Description: Description of genwbtest
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
