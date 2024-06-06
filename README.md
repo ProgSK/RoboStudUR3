@@ -30,6 +30,12 @@ Created v4 code for complete system integration: perception<-->waypoint<-->movem
 - RViz works and displays waypoints and box markers
 
 #################################################################
+Trajectory Planning & Control + Collision Detection & Avoidance Code
+#################################################################
+Google drive link to the code for Trajectory Planning & Control + Collision Detection & Avoidance:
+https://drive.google.com/drive/folders/1AEyNizdOIOfVngCimG3Y0oDE7cMPWiLK?usp=sharing
+
+#################################################################
 Trajectory Planning & Control Progress Log:
 #################################################################
 
