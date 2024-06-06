@@ -2,13 +2,13 @@
 
 Git repository for UR3 Pick and Place robot for Robotics Studio 2 - Group 17
 
-#################################################################
-Perception Progress Log:
-#################################################################
+#################################################################  
+Perception Progress Log:  
+#################################################################  
 
-#################################################################
-Waypoint Planning & Manipulation Progress Log:
-#################################################################
+#################################################################  
+Waypoint Planning & Manipulation Progress Log:  
+#################################################################  
 
 22/04/2024 - Updated github for all the subsystem test files for waypoint planning and manipulation for all code files worked on from week 2 - week 7.
 
@@ -29,18 +29,17 @@ Created v4 code for complete system integration: perception<-->waypoint<-->movem
 - Best-case scenario code for demo
 - RViz works and displays waypoints and box markers
 
-#################################################################
-\nTrajectory Planning & Control + Collision Detection & Avoidance Code
-#################################################################
+#################################################################  
+Trajectory Planning & Control + Collision Detection & Avoidance Code  
+#################################################################  
 
-Google drive link to the code for Trajectory Planning & Control + Collision Detection & Avoidance:
-
+Google drive link to the code for Trajectory Planning & Control + Collision Detection & Avoidance:  
 https://drive.google.com/drive/folders/1AEyNizdOIOfVngCimG3Y0oDE7cMPWiLK?usp=sharing
 
-#################################################################
-Trajectory Planning & Control Progress Log:
+#################################################################  
+Trajectory Planning & Control Progress Log:  
 #################################################################
 
-#################################################################
-Collision Detection & Avoidance Progress Log:
-#################################################################
+#################################################################  
+Collision Detection & Avoidance Progress Log:  
+#################################################################  
