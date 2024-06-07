@@ -45,4 +45,5 @@ Collision Detection & Avoidance Progress Log:
 - updated the UR3e model with the rg2 gripper.
 - added joint constraints to ensure the robot doesn't solve for a weird motion plan when going around obstacles (and pose).
 - updated the environment layout (moved conveyor belt, and obstacle)
+
 #################################################################  
